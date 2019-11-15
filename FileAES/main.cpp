@@ -3,15 +3,15 @@
 #include "FileAES.h"
 #include <io.h>
 
-#define AES_DEFAULT_KEY "IuOWiOgr6uQyLZXL"
+#define AES_DEFAULT_KEY "ABCDEFGH"
 
-//FileAES.exe mode=Encrypt fin=B:\Test.txt fout=B:\TestEncrypt.txt key=IuOWiOgr6uQyLZXL
+//FileAES.exe mode=Encrypt fin=B:\Test.txt fout=B:\TestEncrypt.txt key=ABCDEFGH
 
 int main(int argc, char* argv[])
 {
 	using std::cout;
 	using std::endl;
-	cout << "Ö÷º¯ÊýÊÕµ½µÄ²ÎÊý£º" << endl;
+	cout << "ä¸»å‡½æ•°æ”¶åˆ°çš„å‚æ•°ï¼š" << endl;
 	for (int i = 0; i != argc; ++i)
 	{
 		cout << "argv[" << i << "] = " << argv[i] << endl;
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	ChenJie::AESParams* ptr = ChenJie::FileAES::FetchParams(argv, argc);
 	if (!ptr)
 	{
-		cout << "»ñÈ¡²ÎÊýÊ§°Ü" << endl;
+		cout << "èŽ·å–å‚æ•°å¤±è´¥" << endl;
 		return 1;
 	}
 	ChenJie::Mode mode = ptr->mode;
@@ -30,12 +30,12 @@ int main(int argc, char* argv[])
 	ptr = NULL;
 	if (fin.empty())
 	{
-		cout << "ÊäÈëÎÄ¼þ£¨fin£©Î´Ö¸¶¨" << endl;
+		cout << "è¾“å…¥æ–‡ä»¶ï¼ˆfinï¼‰æœªæŒ‡å®š" << endl;
 		return 2;
 	}
 	if (fout.empty())
 	{
-		cout << "Êä³öÎÄ¼þ£¨fout£©Î´Ö¸¶¨" << endl;
+		cout << "è¾“å‡ºæ–‡ä»¶ï¼ˆfoutï¼‰æœªæŒ‡å®š" << endl;
 		return 3;
 	}
 	const char* outPath = fout.c_str();
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 	{
 		if (0 != remove(outPath))
 		{
-			cout << "Core.jarÒÑ¾­´æÔÚ£¡ÇÒÉ¾³ýÊ§°Ü£¡" << endl;
+			cout << "Core.jarå·²ç»å­˜åœ¨ï¼ä¸”åˆ é™¤å¤±è´¥ï¼" << endl;
 			return -1;
 		}
 	}
@@ -62,12 +62,12 @@ int main(int argc, char* argv[])
 		break;
 	case ChenJie::Mode::Unspecified:
 	default:
-		cout << "modeÎ´Ö¸¶¨" << endl;
+		cout << "modeæœªæŒ‡å®š" << endl;
 		code = 2;
 	}
 	if (0 == code)
 	{
-		cout << (mode == ChenJie::Mode::Encrypt ? "¼ÓÃÜÍê³É£¡" : "") << endl;
+		cout << (mode == ChenJie::Mode::Encrypt ? "åŠ å¯†å®Œæˆï¼" : "") << endl;
 	}
 	return code;
 }
