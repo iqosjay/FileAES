@@ -1,10 +1,13 @@
+﻿// FileAes.h: 标准系统包含文件的包含文件
+// 或项目特定的包含文件。
+
 #pragma once
 
-#include <iostream>
-#include "AES.h"
+#include <cstdio>
+#include "RoyType.h"
+#include "Aes.h"
 
-namespace ChenJie {
-	typedef std::string String;
+namespace Roy {
 
 	enum class Mode {
 		Encrypt = 0,
@@ -20,19 +23,19 @@ namespace ChenJie {
 		String outPath = "";
 	};
 
-	class FileAES
-	{
-	public:
-		//��ȡAES�ļ��ӽ��ܲ���
-		static AESParams* FetchParams(char**, const int);
-		//AES�ļ�����
-		static int Encrpyt(const String&, const String&, const uint8_t*);
-		//AES�ļ�����
-		static int Decrpyt(const String&, const String&, const uint8_t*);
-		//ByteתInt
-		static uint32_t BytesToInt(uint8_t*);
-		//IntתByte
+	class FileAES {
+	private:
+		FileAES() = default;
+		~FileAES() = default;
+	private:
+		static uint32_t Byte2ToInt(uint8_t*);
 		static void IntToBytes(uint32_t, uint8_t*);
+	public:
+		//获取AES文件加解密参数
+		static AESParams* FetchParams(char**, const int);
+		static int EncryptFile(const char*, const char*, const uint8_t*);
+		static int DecryptFile(const char*, const char*, const uint8_t*);
 	};
 }
 
+// TODO: 在此处引用程序需要的其他标头。

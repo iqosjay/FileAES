@@ -1,9 +1,0 @@
-﻿  AES.cpp
-  main.cpp
-  FileAES.cpp
-B:\Workspace\Vs\FileAES\FileAES\FileAES.cpp(116,16): warning C4244: “初始化”: 从“std::streamsize”转换到“size_t”，可能丢失数据
-  正在生成代码
-  Previous IPDB not found, fall back to full compilation.
-  All 210 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  已完成代码的生成
-  FileAES.vcxproj -> B:\Workspace\Vs\FileAES\FileAES\Release\FileAES.exe

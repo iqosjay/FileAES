@@ -1,14 +1,10 @@
-#include "FileAES.h"
-#include <fstream>
+ï»¿#include "FileAes.h"
 
-namespace ChenJie {
-	typedef std::ifstream InputFile;
-	typedef std::ofstream OutputFile;
-	
+namespace Roy {
 	/*
-	»ñÈ¡AESÎÄ¼ş¼Ó½âÃÜ²ÎÊı
-	@param argv		Ö÷º¯ÊıÖĞµÄ²ÎÊı£¨cmdÖĞ´«µİ¹ıÀ´µÄ£©
-	@param len		Êı×éµÄ³¤¶È
+	è·å–AESæ–‡ä»¶åŠ è§£å¯†å‚æ•°
+	@param argv		ä¸»å‡½æ•°ä¸­çš„å‚æ•°ï¼ˆcmdä¸­ä¼ é€’è¿‡æ¥çš„ï¼‰
+	@param len		æ•°ç»„çš„é•¿åº¦
 	*/
 	AESParams* FileAES::FetchParams(char** argv, const int len)
 	{
@@ -50,167 +46,115 @@ namespace ChenJie {
 		}
 		return ptrParam;
 	}
-
-	/*
-	AESÎÄ¼ş¼ÓÃÜ
-	@param src		Òª¼ÓÃÜµÄÎÄ¼şµÄÂ·¾¶
-	@param outPath	¼ÓÃÜ¹ıºóÎÄ¼şµÄÊä³öÂ·¾¶
-	@param key		¼ÓÃÜÎÄ¼şËùÊ¹ÓÃµÄKey
-	*/
-	int FileAES::Encrpyt(const String& input, const String& output, const uint8_t* key)
+	//AESæ–‡ä»¶åŠ å¯†
+	//inputFile  æ˜¯å¾…åŠ å¯†çš„æ–‡ä»¶è·¯å¾„
+	//outputFile æ˜¯åŠ å¯†æˆåŠŸä¹‹åè¾“å‡ºæ–‡ä»¶çš„è·¯å¾„
+	//è¿”å›å€¼ä¸ºä¸€ä¸ªæ•´å½¢ å½“ä¸”ä»…å½“è¿”å›0çš„æ—¶å€™è¡¨ç¤ºæ–‡ä»¶åŠ å¯†æ“ä½œæˆåŠŸ
+	int FileAES::EncryptFile(const char* inputFile, const char* outputFile, const uint8_t* key)
 	{
-		using std::ios;
-		struct AES_ctx ctx;
-		AES_init_ctx(&ctx, key);
+		struct AesCtx ctx;
+		Aes::InitAesCtx(&ctx, key);
+		//Check Whether The File Is Exists
 		// Open File
-		InputFile fin;
-		OutputFile fout;
-		fin.open(input.c_str(), ios::in | ios::binary);
-		if (!fin.is_open())
-		{
-			std::cout << "ÊäÈëÎÄ¼ş²»´æÔÚ£¡" << std::endl;
-			return -1;
-		}
-		fout.open(output.c_str(), ios::out | ios::binary | ios::trunc);
-		if (!fout.is_open())
-		{
-			std::cout << "ÎŞ·¨´´½¨Êä³öÎÄ¼ş£¡" << std::endl;
-			return -1;
-		}
+		FILE* fd = fopen(inputFile, "rb");
+		FILE* fd2 = fopen(outputFile, "wb+");
 
 		uint8_t buffer[16];
+		size_t size = 0;
 
-		uint8_t header[] = {
-			0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-			0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-		};
+		uint8_t header[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+							0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
 		uint32_t line = 0;
 		uint32_t offset = 0;
 		uint8_t tempBytes[4];
 
 		// Save Header
-		fout.write((char*)header, 16 * sizeof(uint8_t));
+		fwrite(header, sizeof(uint8_t), 16, fd2);
 
 		// Save Body
-		while (fin.read((char*)buffer, sizeof(uint8_t) * 16))
-		{
-			++line;
-			size_t size = fin.gcount();
-			if (size < 16)
-			{
-				offset = (uint32_t)16 - size;
-				for (size_t index = 16 - offset; index != 16; ++index)
-				{
+		while ((size = fread(buffer, sizeof(uint8_t), 16, fd)) > 0) {
+			line++;
+			if (size < 16) {
+				offset = (uint32_t)(16 - size);
+				for (size_t index = 16 - offset; index < 16; index++) {
 					buffer[index] = '\0';
 				}
 			}
-			AES_ECB_encrypt(&ctx, buffer);
-			fout.write((char*)buffer, 16 * sizeof(uint8_t));
+			Aes::AesECBEncrypt(&ctx, buffer);
+			fwrite(buffer, sizeof(uint8_t), 16, fd2);
 		}
 
 		// Update Header
-		IntToBytes(line, tempBytes);
-		for (size_t i = 0; i != 4; ++i)
-		{
+		FileAES::IntToBytes(line, tempBytes);
+		for (size_t i = 0; i < 4; i++) {
 			header[i] = tempBytes[i];
 		}
-		IntToBytes(offset, tempBytes);
-		for (size_t i = 0; i != 4; ++i)
-		{
+		FileAES::IntToBytes(offset, tempBytes);
+		for (size_t i = 0; i < 4; i++) {
 			header[4 + i] = tempBytes[i];
 		}
-		AES_ECB_encrypt(&ctx, header);
-		fout.seekp(0, ios::beg);
-		fout.write((char*)header, 16 * sizeof(uint8_t));
+		Aes::AesECBEncrypt(&ctx, header);
+		fseek(fd2, 0, SEEK_SET);
+		fwrite(header, sizeof(uint8_t), 16, fd2);
 
 		// Close File
-		fout.close();
-		fin.close();
+		fclose(fd);
+		fclose(fd2);
 		return 0;
 	}
-	/*
-	AESÎÄ¼ş½âÃÜ
-	@param src		Òª½âÃÜµÄÎÄ¼şµÄÂ·¾¶
-	@param outPath	½âÃÜ¹ıºóÎÄ¼şµÄÊä³öÂ·¾¶
-	@param key		½âÃÜÎÄ¼şËùÊ¹ÓÃµÄKey
-	*/
-	int FileAES::Decrpyt(const String& input, const String& output, const uint8_t* key)
+
+	//AESæ–‡ä»¶è§£å¯†
+	//inputFile  æ˜¯å¾…è§£å¯†çš„æ–‡ä»¶è·¯å¾„
+	//outputFile æ˜¯è§£å¯†æˆåŠŸä¹‹åè¾“å‡ºæ–‡ä»¶çš„è·¯å¾„
+	//è¿”å›å€¼ä¸ºä¸€ä¸ªæ•´å½¢ å½“ä¸”ä»…å½“è¿”å›0çš„æ—¶å€™è¡¨ç¤ºæ–‡ä»¶è§£å¯†æ“ä½œæˆåŠŸ
+	int FileAES::DecryptFile(const char* inputFile, const char* outputFile, const uint8_t* key)
 	{
-		using std::cout;
-		using std::endl;
-		using std::ios;
-
-		struct AES_ctx ctx;
-		AES_init_ctx(&ctx, key);
-
-		InputFile fin;
-		OutputFile fout;
+		struct AesCtx ctx;
+		Aes::InitAesCtx(&ctx, key);
 
 		// Open File
-		fin.open(input.c_str(), ios::in | ios::binary);
-		if (!fin.is_open())
-		{
-			cout << "ÊäÈëÎÄ¼ş²»´æÔÚ£¡" << endl;
-			return -1;
-		}
-
-		fout.open(output.c_str(), ios::out | ios::binary | ios::trunc);
-		if (!fout.is_open())
-		{
-			cout << "ÎŞ·¨´´½¨Êä³öÎÄ¼ş£¡" << endl;
-			return -1;
-		}
+		FILE* fd = fopen(inputFile, "rb");
+		FILE* fd2 = fopen(outputFile, "wb+");
 
 		uint8_t buffer[16];
-		uint8_t header[] = {
-			0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-			0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-		};
+		uint32_t lines = 0;
+
+		uint32_t line = 0;
+		uint32_t offset = 0;
 		uint8_t tempBytes[4];
 
 		// Parse Header
-		if (fin.read((char*)buffer, 16 * sizeof(uint8_t)))
-		{
-			AES_ECB_decrypt(&ctx, buffer);
+		if (fread(buffer, sizeof(uint8_t), 16, fd)) {
+			Aes::AesECBDecrypt(&ctx, buffer);
 		}
-
-		for (size_t i = 0; i != 4; ++i)
-		{
+		for (size_t i = 0; i < 4; i++) {
 			tempBytes[i] = buffer[i];
 		}
-
-		uint32_t line = BytesToInt(tempBytes);
-		for (size_t i = 0; i != 4; ++i)
-		{
+		line = FileAES::Byte2ToInt(tempBytes);
+		for (size_t i = 0; i < 4; i++) {
 			tempBytes[i] = buffer[4 + i];
 		}
-		uint32_t offset = BytesToInt(tempBytes);
+		offset = FileAES::Byte2ToInt(tempBytes);
 
 		// Parse Body
-		uint32_t lines = 0;
-		while (fin.read((char*)buffer, 16 * sizeof(uint8_t)))
-		{
-			AES_ECB_decrypt(&ctx, buffer);
-			if (line == ++lines)
-			{
-				fout.write((char*)buffer, (16 - offset) * sizeof(uint8_t));
+		while (fread(buffer, sizeof(uint8_t), 16, fd)) {
+			lines++;
+			Aes::AesECBDecrypt(&ctx, buffer);
+			if (line == lines) {
+				fwrite(buffer, sizeof(uint8_t), 16 - offset, fd2);
 			}
-			else
-			{
-				fout.write((char*)buffer, 16 * sizeof(uint8_t));
+			else {
+				fwrite(buffer, sizeof(uint8_t), 16, fd2);
 			}
 		}
+
 		// Close File
-		fout.close();
-		fin.close();
+		fclose(fd);
+		fclose(fd2);
 		return 0;
 	}
-	/*
-	ByteÊı×é×ªInt
-	@param bytes	Òª×ª»¯µÄByteÊı×é
-	@return			×ª»¯Ö®ºóµÄ½á¹û
-	*/
-	uint32_t FileAES::BytesToInt(uint8_t* bytes)
+
+	uint32_t FileAES::Byte2ToInt(uint8_t* bytes)
 	{
 		uint32_t iRetVal = bytes[0] & 0xFF;
 		iRetVal |= ((bytes[1] << 8) & 0xFF00);
@@ -218,11 +162,7 @@ namespace ChenJie {
 		iRetVal |= ((bytes[3] << 24) & 0xFF000000);
 		return iRetVal;
 	}
-	/*
-	Int×ªÎªByteÊı×é
-	@param i		Òª×ª»¯µÄInt
-	@param bytes	×ª»¯Íê³ÉÖ®ºóÓÃÓÚ´æ·Å½á¹ûµÄByteÊı×é
-	*/
+
 	void FileAES::IntToBytes(uint32_t i, uint8_t* bytes)
 	{
 		bytes[0] = (uint8_t)(0xFF & i);
@@ -231,3 +171,4 @@ namespace ChenJie {
 		bytes[3] = (uint8_t)((0xFF000000 & i) >> 24);
 	}
 }
+

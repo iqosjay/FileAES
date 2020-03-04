@@ -1,41 +1,35 @@
-#pragma once
-
-#include "FileAES.h"
 #include <io.h>
-
-#define AES_DEFAULT_KEY "ABCDEFGH"
-
-//FileAES.exe mode=Encrypt fin=B:\Test.txt fout=B:\TestEncrypt.txt key=ABCDEFGH
-
+#include "FileAes.h"
+#define AES_DEFAULT_KEY "ABCDEFGHIJKLMNOP"
 int main(int argc, char* argv[])
 {
 	using std::cout;
 	using std::endl;
-	cout << "ä¸»å‡½æ•°æ”¶åˆ°çš„å‚æ•°ï¼š" << endl;
+	cout << "Ö÷º¯ÊýÊÕµ½µÄ²ÎÊý£º" << endl;
 	for (int i = 0; i != argc; ++i)
 	{
 		cout << "argv[" << i << "] = " << argv[i] << endl;
 	}
-	ChenJie::AESParams* ptr = ChenJie::FileAES::FetchParams(argv, argc);
+	Roy::AESParams* ptr = Roy::FileAES::FetchParams(argv, argc);
 	if (!ptr)
 	{
-		cout << "èŽ·å–å‚æ•°å¤±è´¥" << endl;
+		cout << "»ñÈ¡²ÎÊýÊ§°Ü£¡" << endl;
 		return 1;
 	}
-	ChenJie::Mode mode = ptr->mode;
-	ChenJie::String fin = ptr->srcPath;
-	ChenJie::String fout = ptr->outPath;
+	Roy::Mode mode = ptr->mode;
+	Roy::String fin = ptr->srcPath;
+	Roy::String fout = ptr->outPath;
 	uint8_t* key = ptr->key;
 	delete (ptr);
 	ptr = NULL;
 	if (fin.empty())
 	{
-		cout << "è¾“å…¥æ–‡ä»¶ï¼ˆfinï¼‰æœªæŒ‡å®š" << endl;
+		cout << "ÊäÈëÎÄ¼þ£¨fin£©Î´Ö¸¶¨£¡" << endl;
 		return 2;
 	}
 	if (fout.empty())
 	{
-		cout << "è¾“å‡ºæ–‡ä»¶ï¼ˆfoutï¼‰æœªæŒ‡å®š" << endl;
+		cout << "Êä³öÎÄ¼þ£¨fout£©Î´Ö¸¶¨£¡" << endl;
 		return 3;
 	}
 	const char* outPath = fout.c_str();
@@ -43,7 +37,7 @@ int main(int argc, char* argv[])
 	{
 		if (0 != remove(outPath))
 		{
-			cout << "Core.jarå·²ç»å­˜åœ¨ï¼ä¸”åˆ é™¤å¤±è´¥ï¼" << endl;
+			cout << "Êä³öÎÄ¼þ´æÔÚÍ¬ÃûÎÄ¼þ£¡ÇÒÉ¾³ýÊ§°Ü£¡" << endl;
 			return -1;
 		}
 	}
@@ -54,20 +48,20 @@ int main(int argc, char* argv[])
 	int code;
 	switch (mode)
 	{
-	case ChenJie::Mode::Encrypt:
-		code = ChenJie::FileAES::Encrpyt(fin, fout, key);
+	case Roy::Mode::Encrypt:
+		code = Roy::FileAES::EncryptFile(fin.c_str(), fout.c_str(), key);
 		break;
-	case ChenJie::Mode::Decrypt:
-		code = ChenJie::FileAES::Decrpyt(fin, fout, key);
+	case Roy::Mode::Decrypt:
+		code = Roy::FileAES::DecryptFile(fin.c_str(), fout.c_str(), key);
 		break;
-	case ChenJie::Mode::Unspecified:
+	case Roy::Mode::Unspecified:
 	default:
-		cout << "modeæœªæŒ‡å®š" << endl;
+		cout << "ModeÎ´Ö¸¶¨£¡" << endl;
 		code = 2;
 	}
 	if (0 == code)
 	{
-		cout << (mode == ChenJie::Mode::Encrypt ? "åŠ å¯†å®Œæˆï¼" : "") << endl;
+		cout << ((mode == Roy::Mode::Encrypt) ? "¼ÓÃÜÍê³É£¡" : (mode == Roy::Mode::Decrypt) ? "½âÃÜÍê³É£¡" : "") << endl;
 	}
 	return code;
 }
