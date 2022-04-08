@@ -4,7 +4,7 @@ AES文件加密解密
 
 运行指令：
 
-FileAES.exe mode=Encrypt fin=B:\Test.txt fout=B:\TestEncrypt.txt key=J0f34jIomvLtF53Q
+FileAES.exe mode=Encrypt fin=D:\Test.txt fout=B:\TestEncrypt.txt key=J0f34jIomvLtF53Q
 
 说明：
 
