@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
   roy::string fin = params->src_path_;
   roy::string fout = params->out_path_;
   uint8_t* key = params->key_;
-  SAFE_DELETE_PTR(params);
+  // SAFE_DELETE_PTR(params);
   if (fin.empty()) {
     cout << "输入文件（fin）未指定！" << endl;
     return 2;
