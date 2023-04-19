@@ -1,0 +1,3 @@
+/home/roy/workspace/clion/FileAES/FileAES/build/CMakeFiles/fileaes.dir
+/home/roy/workspace/clion/FileAES/FileAES/build/CMakeFiles/edit_cache.dir
+/home/roy/workspace/clion/FileAES/FileAES/build/CMakeFiles/rebuild_cache.dir
