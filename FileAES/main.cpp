@@ -1,64 +1,57 @@
-#include <io.h>
-
 #include <iostream>
 
-#include "file-aes.h"
+#include "cipher/file-aes.h"
 
-#define AES_DEFAULT_KEY "ABCDEFGHIJKLMNOP"
+namespace {
+constexpr const char* kUsage =
+    "Usage :\n"
+    "      ./fileaes --mode=<MODE> --fin=<PATH1> --fout=<PATH2> --key=<KEY>\n"
+    "      <MODE>  : encrypt or decrypt\n"
+    "      <PATH1> : the path of input file\n"
+    "      <PATH2> : the path of output file\n"
+    "      <KEY>   : the key that used for encryption or decryption\n"
+    "Eg    :\n"
+    "      ./fileaes --mode=encrypt --fin=a.png --fout=b.png --key=9i8zUx02h8Cz5Roy";
+}
 
-int main(int argc, char* argv[]) {
-  using std::cout;
-  using std::endl;
-  cout << "主函数收到的参数：" << endl;
+inline void print_usage() {
+  std::cout << kUsage << std::endl;
+}
+
+int main(int argc, char** argv) {
+  if (5 != argc) {
+    print_usage();
+    return 0;
+  }
+  std::string mode, file_in, file_out, key;
   for (int i = 0; i != argc; ++i) {
-    cout << "argv[" << i << "] = " << argv[i] << endl;
-  }
-  auto params = roy::FileAES::FetchParams(argc, argv);
-  if (nullptr == params) {
-    cout << "获取参数失败！" << endl;
-    return 1;
-  }
-  roy::Mode mode = params->mode_;
-  roy::string fin = params->src_path_;
-  roy::string fout = params->out_path_;
-  uint8_t* key = params->key_;
-  // SAFE_DELETE_PTR(params);
-  if (fin.empty()) {
-    cout << "输入文件（fin）未指定！" << endl;
-    return 2;
-  }
-  if (fout.empty()) {
-    cout << "输出文件（fout）未指定！" << endl;
-    return 3;
-  }
-  const char* out_path = fout.c_str();
-  if (0 == _access(out_path, 0)) {
-    if (0 != remove(out_path)) {
-      cout << "输出文件存在同名文件！且删除失败！" << endl;
-      return -1;
+    const std::string pair = argv[i];
+    const std::string::size_type pos = pair.find('=');
+    if (std::string::npos == pos) {
+      continue;
+    }
+    const std::string k = pair.substr(0, pos);
+    const std::string v = pair.substr(pos + 1);
+    if ("--mode" == k) {
+      mode = v;
+    } else if ("--fin" == k) {
+      file_in = v;
+    } else if ("--fout" == k) {
+      file_out = v;
+    } else if ("--key" == k) {
+      key = v;
     }
   }
-  if (0 == key) {
-    key = (uint8_t*)AES_DEFAULT_KEY;
+  if (file_in.empty() || file_out.empty() || key.empty()) {
+    print_usage();
+    return 0;
   }
-  int code;
-  switch (mode) {
-    case roy::Mode::kEncrypt:
-      code = roy::FileAES::EncryptFile(fin.c_str(), fout.c_str(), key);
-      break;
-    case roy::Mode::kDecrypt:
-      code = roy::FileAES::DecryptFile(fin.c_str(), fout.c_str(), key);
-      break;
-    case roy::Mode::kUnspecified:
-    default:
-      cout << "Mode未指定！" << endl;
-      code = 2;
+  if ("encrypt" == mode) {
+    roy::Encrypt(file_in.c_str(), file_out.c_str(), (roy::uint8*) key.c_str());
+  } else if ("decrypt" == mode) {
+    roy::Decrypt(file_in.c_str(), file_out.c_str(), (roy::uint8*) key.c_str());
+  } else {
+    print_usage();
   }
-  if (0 == code) {
-    cout << ((mode == roy::Mode::kEncrypt)   ? "加密完成！"
-             : (mode == roy::Mode::kDecrypt) ? "解密完成！"
-                                             : "")
-         << endl;
-  }
-  return code;
+  return 0;
 }
