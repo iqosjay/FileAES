@@ -1,5 +1,5 @@
-#ifndef BR_ACTIVE_DEFINITIONS_H_
-#define BR_ACTIVE_DEFINITIONS_H_
+#ifndef FILE_AES_DEFINITIONS_H_
+#define FILE_AES_DEFINITIONS_H_
 
 #include <cstdint>
 
@@ -11,4 +11,4 @@ typedef uint32_t uint32;
 
 }
 
-#endif//BR_ACTIVE_DEFINITIONS_H_
+#endif//FILE_AES_DEFINITIONS_H_
