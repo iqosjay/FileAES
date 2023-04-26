@@ -5,7 +5,7 @@
 namespace roy {
 
 void Encrypt(const char* file_in, const char* file_out, uint8* key) {
-  struct AES_ctx ctx{};
+  struct AES_ctx ctx {};
   AES_init_ctx(&ctx, key);
 
   // Open File
@@ -28,7 +28,7 @@ void Encrypt(const char* file_in, const char* file_out, uint8* key) {
   while ((size = fread(buffer, sizeof(uint8), 16, fdi)) > 0) {
     ++line;
     if (size < 16) {
-      offset = (uint32) (16 - size);
+      offset = (uint32)(16 - size);
       for (size_t index = 16 - offset; index < 16; index++) {
         buffer[index] = '\0';
       }
@@ -56,7 +56,7 @@ void Encrypt(const char* file_in, const char* file_out, uint8* key) {
 }
 
 void Decrypt(const char* file_in, const char* file_out, uint8* key) {
-  struct AES_ctx ctx{};
+  struct AES_ctx ctx {};
   AES_init_ctx(&ctx, key);
 
   // Open File
@@ -100,10 +100,10 @@ void Decrypt(const char* file_in, const char* file_out, uint8* key) {
 }
 
 void IntToBytes(uint32 n, uint8* bytes) {
-  bytes[0] = (uint8) (0xFF & n);
-  bytes[1] = (uint8) ((0xFF00 & n) >> 8);
-  bytes[2] = (uint8) ((0xFF0000 & n) >> 16);
-  bytes[3] = (uint8) ((0xFF000000 & n) >> 24);
+  bytes[0] = (uint8)(0xFF & n);
+  bytes[1] = (uint8)((0xFF00 & n) >> 8);
+  bytes[2] = (uint8)((0xFF0000 & n) >> 16);
+  bytes[3] = (uint8)((0xFF000000 & n) >> 24);
 }
 
 uint32 BytesToInt(const uint8* bytes) {
@@ -114,4 +114,4 @@ uint32 BytesToInt(const uint8* bytes) {
   return num;
 }
 
-}
+}  // namespace roy

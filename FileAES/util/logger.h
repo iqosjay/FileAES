@@ -14,44 +14,31 @@
 
 namespace roy {
 
-enum class LogLevel {
-  kVerbose,
-  kDebug,
-  kInfo,
-  kWarning,
-  kError,
-  kFatal
-};
+enum class LogLevel { kVerbose, kDebug, kInfo, kWarning, kError, kFatal };
 
 class Logger {
  public:
   explicit Logger(LogLevel level);
 
-  template<typename T>
+  template <typename T>
   Logger& operator<<(const T& t) {
     ss_ << t;
     return *this;
   }
 
-  template<>
+  template <typename>
   Logger& operator<<(const bool& t) {
     ss_ << (t ? "true" : "false");
     return *this;
   }
 
-  template<>
-  Logger& operator<<(const char& t) {
-    ss_ << t;
-    return *this;
-  }
-
-  template<>
+  template <typename>
   Logger& operator<<(const int8& t) {
     ss_ << static_cast<int32>(t);
     return *this;
   }
 
-  template<>
+  template <typename>
   Logger& operator<<(const uint8& t) {
     ss_ << static_cast<uint32>(t);
     return *this;
@@ -72,6 +59,6 @@ class Logger {
   std::stringstream ss_;
 };
 
-}
+}  // namespace roy
 
-#endif//FILE_AES_UTIL_LOGGER_H_
+#endif  // FILE_AES_UTIL_LOGGER_H_

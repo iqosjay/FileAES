@@ -11,6 +11,6 @@ void Decrypt(const char* file_in, const char* file_out, uint8* key);
 uint32 BytesToInt(const uint8* bytes);
 void IntToBytes(uint32 n, uint8* bytes);
 
-}
+}  // namespace roy
 
-#endif//FILE_AES_CRYPTO_FILE_AES_H_
+#endif  // FILE_AES_CRYPTO_FILE_AES_H_
