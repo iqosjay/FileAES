@@ -2,8 +2,6 @@
 
 #include <cstdio>
 
-#include "definitions.h"
-
 namespace roy {
 
 Logger::Logger(LogLevel level) : level_(level) {}

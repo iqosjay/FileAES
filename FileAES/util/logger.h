@@ -3,6 +3,8 @@
 
 #include <sstream>
 
+#include "definitions.h"
+
 #define LOGV roy::Logger::Logcat() = roy::Logger(roy::LogLevel::kVerbose)
 #define LOGD roy::Logger::Logcat() = roy::Logger(roy::LogLevel::kDebug)
 #define LOGI roy::Logger::Logcat() = roy::Logger(roy::LogLevel::kInfo)
@@ -28,6 +30,30 @@ class Logger {
   template<typename T>
   Logger& operator<<(const T& t) {
     ss_ << t;
+    return *this;
+  }
+
+  template<>
+  Logger& operator<<(const bool& t) {
+    ss_ << (t ? "true" : "false");
+    return *this;
+  }
+
+  template<>
+  Logger& operator<<(const char& t) {
+    ss_ << t;
+    return *this;
+  }
+
+  template<>
+  Logger& operator<<(const int8& t) {
+    ss_ << static_cast<int32>(t);
+    return *this;
+  }
+
+  template<>
+  Logger& operator<<(const uint8& t) {
+    ss_ << static_cast<uint32>(t);
     return *this;
   }
 

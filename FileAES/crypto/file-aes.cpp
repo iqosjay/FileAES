@@ -9,8 +9,8 @@ void Encrypt(const char* file_in, const char* file_out, uint8* key) {
   AES_init_ctx(&ctx, key);
 
   // Open File
-  FILE* fd = fopen(file_in, "re");
-  FILE* fd2 = fopen(file_out, "we");
+  FILE* fdi = fopen(file_in, "rb");
+  FILE* fdo = fopen(file_out, "wb");
 
   uint8 buffer[16];
   size_t size = 0;
@@ -19,13 +19,13 @@ void Encrypt(const char* file_in, const char* file_out, uint8* key) {
                     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
   uint32 line = 0;
   uint32 offset = 0;
-  uint8 tempBytes[4];
+  uint8 temp_bytes[4];
 
   // Save Header
-  fwrite(header, sizeof(uint8), 16, fd2);
+  fwrite(header, sizeof(uint8), 16, fdo);
 
   // Save Body
-  while ((size = fread(buffer, sizeof(uint8), 16, fd)) > 0) {
+  while ((size = fread(buffer, sizeof(uint8), 16, fdi)) > 0) {
     ++line;
     if (size < 16) {
       offset = (uint32) (16 - size);
@@ -34,25 +34,25 @@ void Encrypt(const char* file_in, const char* file_out, uint8* key) {
       }
     }
     AES_ECB_encrypt(&ctx, buffer);
-    fwrite(buffer, sizeof(uint8), 16, fd2);
+    fwrite(buffer, sizeof(uint8), 16, fdo);
   }
 
   // Update Header
-  IntToBytes(line, tempBytes);
+  IntToBytes(line, temp_bytes);
   for (size_t i = 0; i < 4; i++) {
-    header[i] = tempBytes[i];
+    header[i] = temp_bytes[i];
   }
-  IntToBytes(offset, tempBytes);
+  IntToBytes(offset, temp_bytes);
   for (size_t i = 0; i < 4; i++) {
-    header[4 + i] = tempBytes[i];
+    header[4 + i] = temp_bytes[i];
   }
   AES_ECB_encrypt(&ctx, header);
-  fseek(fd2, 0, SEEK_SET);
-  fwrite(header, sizeof(uint8), 16, fd2);
+  fseek(fdo, 0, SEEK_SET);
+  fwrite(header, sizeof(uint8), 16, fdo);
 
   // Close File
-  fclose(fd);
-  fclose(fd2);
+  fclose(fdi);
+  fclose(fdo);
 }
 
 void Decrypt(const char* file_in, const char* file_out, uint8* key) {
@@ -60,8 +60,8 @@ void Decrypt(const char* file_in, const char* file_out, uint8* key) {
   AES_init_ctx(&ctx, key);
 
   // Open File
-  FILE* fd = fopen(file_in, "re");
-  FILE* fd2 = fopen(file_out, "we");
+  FILE* fdi = fopen(file_in, "rb");
+  FILE* fdo = fopen(file_out, "wb");
 
   uint8 buffer[16];
   uint32 lines = 0;
@@ -71,7 +71,7 @@ void Decrypt(const char* file_in, const char* file_out, uint8* key) {
   uint8 temp_bytes[4];
 
   // Parse Header
-  if (fread(buffer, sizeof(uint8), 16, fd)) {
+  if (fread(buffer, sizeof(uint8), 16, fdi)) {
     AES_ECB_decrypt(&ctx, buffer);
   }
   for (size_t i = 0; i < 4; i++) {
@@ -84,19 +84,19 @@ void Decrypt(const char* file_in, const char* file_out, uint8* key) {
   offset = BytesToInt(temp_bytes);
 
   // Parse Body
-  while (fread(buffer, sizeof(uint8), 16, fd)) {
+  while (fread(buffer, sizeof(uint8), 16, fdi)) {
     ++lines;
     AES_ECB_decrypt(&ctx, buffer);
     if (line == lines) {
-      fwrite(buffer, sizeof(uint8), 16 - offset, fd2);
+      fwrite(buffer, sizeof(uint8), 16 - offset, fdo);
     } else {
-      fwrite(buffer, sizeof(uint8), 16, fd2);
+      fwrite(buffer, sizeof(uint8), 16, fdo);
     }
   }
 
   // Close File
-  fclose(fd);
-  fclose(fd2);
+  fclose(fdi);
+  fclose(fdo);
 }
 
 void IntToBytes(uint32 n, uint8* bytes) {

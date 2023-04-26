@@ -1,5 +1,5 @@
-#ifndef FILE_AES_CIPHER_FILE_AES_H_
-#define FILE_AES_CIPHER_FILE_AES_H_
+#ifndef FILE_AES_CRYPTO_FILE_AES_H_
+#define FILE_AES_CRYPTO_FILE_AES_H_
 
 #include "aes.h"
 #include "definitions.h"
@@ -13,4 +13,4 @@ void IntToBytes(uint32 n, uint8* bytes);
 
 }
 
-#endif//FILE_AES_CIPHER_FILE_AES_H_
+#endif//FILE_AES_CRYPTO_FILE_AES_H_

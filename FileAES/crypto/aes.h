@@ -1,5 +1,5 @@
-#ifndef FILE_AES_CIPHER_AES_H_
-#define FILE_AES_CIPHER_AES_H_
+#ifndef FILE_AES_CRYPTO_AES_H_
+#define FILE_AES_CRYPTO_AES_H_
 
 #include <stdint.h>
 
@@ -15,7 +15,7 @@ extern "C" {
 
 // The #ifndef-guard allows it to be configured before #include'ing or at compile time.
 #ifndef CBC
-#define CBC 1
+#define CBC 0
 #endif
 
 #ifndef ECB
@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 #ifndef CTR
-#define CTR 1
+#define CTR 0
 #endif
 
 
@@ -93,4 +93,4 @@ void AES_CTR_xcrypt_buffer(struct AES_ctx* ctx, uint8_t* buf, uint32_t length);
 }
 #endif//__cplusplus
 
-#endif//FILE_AES_CIPHER_AES_H_
+#endif//FILE_AES_CRYPTO_AES_H_
